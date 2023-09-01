@@ -1,11 +1,39 @@
-// userCtrl.js
+const User = require("../../model/User/User");
+const bcrypt = require('bcryptjs');
+
 
 // Register
 const userRegisterCtrl = async(req, res) =>{
+    const {
+        firstname, 
+        lastname, 
+        profilePhoto, 
+        email, 
+        password
+    } = req.body;
+
     try{
+        //check if email exist
+        const userFound = await User.findOne({email});
+        if(userFound){
+            return res.json({
+                msg: "User Already Exist"
+            })
+        }
+        //hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        //create user
+        const user = await User.create({
+            firstname, 
+            lastname, 
+            email, 
+            password: hashedPassword
+        });
         res.json({
             status: "success",
-            data: "user registered",
+            data: user,
         });
     } catch (error) {
         res.json(error.message);
@@ -14,10 +42,28 @@ const userRegisterCtrl = async(req, res) =>{
 
 // Login
 const userLoginCtrl = async(req, res) =>{
+    const {email, password} = req.body;
     try{
+        // check if email exist
+        const userFound = await User.findOne({email});
+        if(!userFound) {
+            return res.json({
+                msg: "Invalid login Credentials"
+            });
+        }
+
+        // Verify Password
+        const isPasswordMatched = await bcrypt.compare(password, userFound.password);
+
+        if(!userFound || !isPasswordMatched) {
+            return res.json({
+                msg: "Invalid login Credentials"
+            });
+        }
+       
         res.json({
             status: "success",
-            data: "user login",
+            data: userFound,
         });
     } catch (error) {
         res.json(error.message);
@@ -26,10 +72,12 @@ const userLoginCtrl = async(req, res) =>{
 
 // Profile
 const userProfileCtrl = async(req, res) =>{
+    const {id} = req.params;
     try{
+        const user = await User.findById(id);
         res.json({
             status: "success",
-            data: "Profile route",
+            data: user
         });
     } catch (error) {
         res.json(error.message);

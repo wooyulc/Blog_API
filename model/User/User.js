@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
         },
         lastname: {
             type: String,
-            required: [ture, 'Last Name is required']
+            required: [true, 'Last Name is required']
         },
         profilePhoto: {
             ttype: String
