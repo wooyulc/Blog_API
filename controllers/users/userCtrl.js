@@ -5,7 +5,7 @@ const getTokenFromHeader = require("../../utils/getTokenFromHeader");
 getTokenFromHeader;
 
 // Register
-const userRegisterCtrl = async(req, res) =>{
+const userRegisterCtrl = async(req, res, next) =>{
     const {
         firstname, 
         lastname, 
@@ -18,9 +18,7 @@ const userRegisterCtrl = async(req, res) =>{
         //check if email exist
         const userFound = await User.findOne({email});
         if(userFound){
-            return res.json({
-                msg: "User Already Exist"
-            })
+            return next(new Error("User Already Exist"));
         }
         //hash password
         const salt = await bcrypt.genSalt(10);
@@ -38,7 +36,7 @@ const userRegisterCtrl = async(req, res) =>{
             data: user,
         });
     } catch (error) {
-        res.json(error.message);
+        next(new Error(error.message));
     }
 };
 
@@ -80,11 +78,8 @@ const userLoginCtrl = async(req, res) =>{
 
 // Profile
 const userProfileCtrl = async(req, res) =>{
-    const {id} = req.params;
     try{
-        const token = getTokenFromHeader(req);
-        // console.log(token);
-        const user = await User.findById(id);
+        const user = await User.findById(req.userAuth);
         res.json({
             status: "success",
             data: user

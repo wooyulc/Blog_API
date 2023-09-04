@@ -1,5 +1,14 @@
 const express = require('express');
-const { userRegisterCtrl, userLoginCtrl, userProfileCtrl, usersCtrl, userDeleteCtrl, userUpdateCtrl} = require('../../controllers/users/userCtrl');
+const { 
+    userRegisterCtrl, 
+    userLoginCtrl, 
+    userProfileCtrl, 
+    usersCtrl, 
+    userDeleteCtrl, 
+    userUpdateCtrl
+} = require('../../controllers/users/userCtrl');
+const isLogin = require('../../middlewares/isLogin');
+
 const userRouter = express.Router();
 
 // POST/api/v1/users/register
@@ -9,7 +18,7 @@ userRouter.post('/register', userRegisterCtrl);
 userRouter.post('/login', userLoginCtrl);
 
 // GET/api/users/:id
-userRouter.get('/profile/:id', userProfileCtrl);
+userRouter.get('/profile', isLogin, userProfileCtrl);
 
 // GET/api/v1/users
 userRouter.get('/', usersCtrl);

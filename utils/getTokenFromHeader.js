@@ -8,10 +8,7 @@ const getTokenFromHeader = req =>{
         return token
     }
     else {
-        return  {
-            status: 'failed',
-            message: 'There is no token attcehd to the header'
-        };
+        false;
     }   
 };
 
