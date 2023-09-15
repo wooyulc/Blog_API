@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const generateToken = require("../../utils/generateToken");
 const getTokenFromHeader = require("../../utils/getTokenFromHeader");
 const {appErr, AppErr} = require("../../utils/appErr");
-getTokenFromHeader;
+const multer = require('multer');
 
 // Register
 const userRegisterCtrl = async(req, res, next) =>{
@@ -126,11 +126,53 @@ const userUpdateCtrl = async(req, res) =>{
     }
 };
 
+// Profile Photo Upload
+const profilePhotoUploadCtrl = async(req, res, next) =>{  
+    console.log(req.file)
+    try {
+        //1. Find the user to be updated
+        const userToUpdate = await User.findById(req.userAuth);
+        //2. check if user is found
+        if(!userToUpdate) {
+            return next(appErr('User not found', 403));
+        }
+        //3. check if user is blocked
+        if(userToUpdate.isBlocked) {
+            return next(appErr('Action is not allowed, your account is blocked', 403));
+        }
+        //4. check if a suer is updating their photo 
+        if(req.file) {
+            //5. Update profile photo
+            await User.findByIdAndUpdate(
+                req.userAuth, 
+                {
+                    $set:{
+                        profilePhoto: req.file.path,
+                    },
+                },
+                {
+                    new: true,
+                }
+
+            );
+            res.json({
+                status: "success",
+                data: "You have successfully upadted your profile photo"
+                }
+            );
+      }
+  } catch (error) {
+    next(appErr(error.message, 500));
+  }
+};
+
+
 module.exports = {
     userRegisterCtrl,
     userLoginCtrl,
     userProfileCtrl,
     usersCtrl,
     userDeleteCtrl,
-    userUpdateCtrl
+    userUpdateCtrl,
+    profilePhotoUploadCtrl,
 };

@@ -24,10 +24,6 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Password is required']
         },
-        postCount: {
-            type: Number,
-            default: 0,
-        },
         isBlocked: {
             type: Boolean,
             default: false,
@@ -40,7 +36,7 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ['Admin', 'Geust', 'Editor'],
         },
-        viewedBy: [{
+        viewers: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User', 
         }],
@@ -52,14 +48,24 @@ const userSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User', 
         }],
-        active: {
-            type: Boolean,
-            default: true,
-        },
         posts: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Post'
         }],
+        blocked: [{
+            type: mongoose.Types.ObjectId,
+            ref: "User",
+        }],
+        plan: [{
+            type: String,
+            enum: ['Free', 'Premium', 'Pro'],
+            default: 'Free'
+        }],
+        userReward: [{
+            type: String,
+            enum: ['Bronze', 'Silver', 'Gold', 'Platinum'],
+            default: 'Bronze'
+        }]
     },
     {
         timestamps: true
