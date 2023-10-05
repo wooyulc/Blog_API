@@ -7,7 +7,8 @@ const {
     usersCtrl, 
     userDeleteCtrl, 
     userUpdateCtrl,
-    profilePhotoUploadCtrl
+    whoViewProfileCtrl,
+    profilePhotoUploadCtrl,
 } = require('../../controllers/users/userCtrl');
 const isLogin = require('../../middlewares/isLogin');
 const multer = require('multer');
@@ -28,6 +29,9 @@ userRouter.get('/profile', isLogin, userProfileCtrl);
 // GET/api/v1/users
 userRouter.get('/', usersCtrl);
 
+// GET/api/v1/users/profile_viewers/:id
+userRouter.get('/profile-viewers/:id', whoViewProfileCtrl);
+
 // DELETE/api/v1/users/:id
 userRouter.delete('/:id', userDeleteCtrl);
 
@@ -40,5 +44,6 @@ isLogin,
 upload.single('profile'),
 profilePhotoUploadCtrl,
 );
+
 
 module.exports = userRouter;

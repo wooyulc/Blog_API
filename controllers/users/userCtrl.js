@@ -37,7 +37,7 @@ const userRegisterCtrl = async(req, res, next) =>{
             data: user,
         });
     } catch (error) {
-        next(appErr(error.message));
+        next("Login failed");
     }
 };
 
@@ -73,12 +73,25 @@ const userLoginCtrl = async(req, res) =>{
             }
         });
     } catch (error) {
+        res.json("login failed");
+    }
+};
+
+// who view the profile
+const whoViewProfileCtrl = async(req, res) =>{
+    try{
+        res.json({
+            status: "success",
+            data: "who view my profile",
+        });
+        
+    } catch (error) {
         res.json(error.message);
     }
 };
 
 // Profile
-const userProfileCtrl = async(req, res) =>{
+const userProfileCtrl = async(req, res, next) =>{
     try{
         const user = await User.findById(req.userAuth);
         res.json({
@@ -86,7 +99,7 @@ const userProfileCtrl = async(req, res) =>{
             data: user
         });
     } catch (error) {
-        res.json(error.message);
+        next("profile not failed");
     }
 };
 
@@ -98,7 +111,7 @@ const usersCtrl = async(req, res) =>{
             data: "users route",
         });
     } catch (error) {
-        res.json(error.message);
+        res.json("all failed");
     }
 };
 
@@ -110,7 +123,7 @@ const userDeleteCtrl = async(req, res) =>{
             data: "delete user route",
         });
     } catch (error) {
-        res.json(error.message);
+        res.json("delete failed");
     }
 };
 
@@ -122,7 +135,7 @@ const userUpdateCtrl = async(req, res) =>{
             data: "update user route",
         });
     } catch (error) {
-        res.json(error.message);
+        res.json("update failed");
     }
 };
 
@@ -134,13 +147,13 @@ const profilePhotoUploadCtrl = async(req, res, next) =>{
         const userToUpdate = await User.findById(req.userAuth);
         //2. check if user is found
         if(!userToUpdate) {
-            return next(appErr('User not found', 403));
+            return next(appErr('User not found', 404));
         }
         //3. check if user is blocked
         if(userToUpdate.isBlocked) {
             return next(appErr('Action is not allowed, your account is blocked', 403));
         }
-        //4. check if a suer is updating their photo 
+        //4. check if a user is updating their photo 
         if(req.file) {
             //5. Update profile photo
             await User.findByIdAndUpdate(
@@ -162,7 +175,7 @@ const profilePhotoUploadCtrl = async(req, res, next) =>{
             );
       }
   } catch (error) {
-    next(appErr(error.message, 500));
+    res.json("Photo upload failed");
   }
 };
 
@@ -175,4 +188,5 @@ module.exports = {
     userDeleteCtrl,
     userUpdateCtrl,
     profilePhotoUploadCtrl,
+    whoViewProfileCtrl,
 };

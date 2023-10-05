@@ -29,6 +29,7 @@ app.use((req, res, next) => {
 
 // routes
 // users route
+
 app.use('/api/v1/users', userRouter);
 // posts route
 app.use('/api/v1/posts', postRouter);

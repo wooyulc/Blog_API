@@ -17,7 +17,7 @@ const postSchema = new mongoose.Schema(
         category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Category',
-            required: [ture, "Post catetgory is required"],
+            required: [true, "Post catetgory is required"],
         },
         numViews:[{
             type: mongoose.Schema.Types.ObjectId,
@@ -38,7 +38,7 @@ const postSchema = new mongoose.Schema(
         },
         photo: {
             type: String,
-            required: [ture, "Post Image is requried"]
+            required: [true, "Post Image is requried"]
         }
     },
     {
