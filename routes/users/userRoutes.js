@@ -30,7 +30,7 @@ userRouter.get('/profile', isLogin, userProfileCtrl);
 userRouter.get('/', usersCtrl);
 
 // GET/api/v1/users/profile_viewers/:id
-userRouter.get('/profile-viewers/:id', whoViewProfileCtrl);
+userRouter.get('/profile-viewers/:id', whoViewProfileCtrl); 
 
 // DELETE/api/v1/users/:id
 userRouter.delete('/:id', userDeleteCtrl);

@@ -80,6 +80,7 @@ const userLoginCtrl = async(req, res) =>{
 // who view the profile
 const whoViewProfileCtrl = async(req, res) =>{
     try{
+        // 1. find the original user 
         res.json({
             status: "success",
             data: "who view my profile",
