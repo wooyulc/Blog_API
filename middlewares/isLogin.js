@@ -1,5 +1,5 @@
 // isLogin.js
-const { AppErr, appErr } = require("../utils/appErr");
+const { appErr } = require("../utils/appErr");
 const getTokenFromHeader = require("../utils/getTokenFromHeader");
 const verifyToken = require("../utils/verifyToken");
 
@@ -16,9 +16,6 @@ const isLogin = (req, res, next) => {
     }else{
         next();
     }
-
-    
-
 }
 
 module.exports = isLogin;

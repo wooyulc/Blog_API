@@ -10,7 +10,6 @@ const userRegisterCtrl = async(req, res, next) =>{
     const {
         firstname, 
         lastname, 
-        profilePhoto, 
         email, 
         password
     } = req.body;
@@ -42,24 +41,25 @@ const userRegisterCtrl = async(req, res, next) =>{
 };
 
 // Login
-const userLoginCtrl = async(req, res) =>{
+const userLoginCtrl = async(req, res, next) =>{
     const {email, password} = req.body;
     try{
         // check if email exist
         const userFound = await User.findOne({email});
         if(!userFound) {
-            return res.json({
-                msg: "Invalid login Credentials"
-            });
+            return next(appErr("Invalid login credentials"));
         }
 
         // Verify Password
-        const isPasswordMatched = await bcrypt.compare(password, userFound.password);
+        const isPasswordMatched = await bcrypt.compare(
+            password, 
+            userFound.password
+        );
 
-        if(!userFound || !isPasswordMatched) {
-            return res.json({
-                msg: "Invalid login Credentials"
-            });
+        if(!isPasswordMatched) {
+            if (!userFound) {
+                return next(appErr("Invalid login credentials"));
+            }
         }
        
         res.json({
@@ -68,12 +68,11 @@ const userLoginCtrl = async(req, res) =>{
                 firstname: userFound.firstname,
                 lastanme: userFound.lastname,
                 email: userFound.email,
-                isAdmin: userFound.isAdmin,
                 token: generateToken(userFound._id)
             }
         });
     } catch (error) {
-        res.json("login failed");
+        next(appErr(error.message));
     }
 };
 
@@ -81,11 +80,27 @@ const userLoginCtrl = async(req, res) =>{
 const whoViewProfileCtrl = async(req, res) =>{
     try{
         // 1. find the original user 
-        res.json({
-            status: "success",
-            data: "who view my profile",
-        });
-        
+        const user = await User.findById(req.params.id);
+        // 2. find the user who viewed the orignal user
+        const userWhoViewed = await User.findById(req.userAuth);
+        // 3. check if original and who viewed are found 
+        if(user && userWhoViewed) {
+            // 4. check if userWhoViewed is already in the users viewers array
+            const isAlreadyViewed = user.viewers.find(viewers => viewers.toString() === userWhoViewed._id.toJSON());
+            if(isAlreadyViewed) {
+                return next(appErr("You already viewed this profile"));
+            }
+            else {
+                // 5. Push the userWhoViewed to the user's viewers array
+                user.viewers.push(userWhoViewed._id);
+                // 6. save the user
+                await user.save();
+                res.json({
+                    status: "success",
+                    data: "who view my profile",
+                });
+            }
+        }
     } catch (error) {
         res.json(error.message);
     }
