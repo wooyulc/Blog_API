@@ -111,7 +111,7 @@ const followingCtrl = async(req, res, next) =>{
     try{
         // find the user to follow
         const userToFollow = await User.findById(req.params.id);
-        // find the suer who is following
+        // find the user who is following
         const userWhoFollowed = await User.findById(req.userAuth);
 
         // check if user and userWhoFollowed are found
@@ -137,6 +137,47 @@ const followingCtrl = async(req, res, next) =>{
     } catch (error) {
         res.json(error.message);
     }
+};
+
+// unfollow
+const unfollowCtrl = async(req, res, next) =>{
+    try {
+        //1. Find the user to unfolloW
+        const userToBeUnfollowed = await User.findById(req.params.id);
+        //2. Find the user who is unfollowing
+        const userWhoUnFollowed = await User.findById(req.userAuth);
+        //3. Check if user and userWhoUnFollowed are found
+        if (userToBeUnfollowed && userWhoUnFollowed) {
+          //4. Check if userWhoUnfollowed is already in the user's followers array
+          const isUserAlreadyFollowed = userToBeUnfollowed.followers.find(
+            follower => follower.toString() === userWhoUnFollowed._id.toString()
+          );
+          if (!isUserAlreadyFollowed) {
+            return next(appErr("You have not followed this user"));
+          } else {
+            //5. Remove userWhoUnFollowed from the user's followers array
+            userToBeUnfollowed.followers = userToBeUnfollowed.followers.filter(
+              follower => follower.toString() !== userWhoUnFollowed._id.toString()
+            );
+            //save the user
+            await userToBeUnfollowed.save();
+            //7. Remove userToBeInfollowed from the userWhoUnfollowed's following array
+            userWhoUnFollowed.following = userWhoUnFollowed.following.filter(
+              following =>
+                following.toString() !== userToBeUnfollowed._id.toString()
+            );
+    
+            //8. save the user
+            await userWhoUnFollowed.save();
+            res.json({
+              status: "success",
+              data: "You have successfully unfollowed this user",
+            });
+          }
+        }
+      } catch (error) {
+        next(appErr(error.message));
+      }
 };
 
 // Profile
@@ -238,5 +279,6 @@ module.exports = {
     userUpdateCtrl,
     profilePhotoUploadCtrl,
     whoViewProfileCtrl,
-    followingCtrl
+    followingCtrl,
+    unfollowCtrl
 };
