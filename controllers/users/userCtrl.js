@@ -117,9 +117,10 @@ const followingCtrl = async(req, res, next) =>{
         // check if user and userWhoFollowed are found
         if(userToFollow && userWhoFollowed) {
             // check if userWhofollowed is already in the user's followers array
-            const isUserAlreadyFollowed = userToFollow.following.find(follower => follower.toString() === userWhoFollowed._id.toString());
+            const isUserAlreadyFollowed = userToFollow.followers.find(
+                follower => follower.toString() === userWhoFollowed._id.toString());
             if(isUserAlreadyFollowed) {
-                return next(appErr('You already followed this user'))
+                return next(appErr('You have already followed this user'))
             } else {
                 // push userWhoFollowed into the user's followers array
                 userToFollow.followers.push(userWhoFollowed._id);
@@ -139,45 +140,67 @@ const followingCtrl = async(req, res, next) =>{
     }
 };
 
-// unfollow
-const unfollowCtrl = async(req, res, next) =>{
+// block
+const blockCtrl = async(req, res, next) =>{
     try {
-        //1. Find the user to unfolloW
-        const userToBeUnfollowed = await User.findById(req.params.id);
-        //2. Find the user who is unfollowing
-        const userWhoUnFollowed = await User.findById(req.userAuth);
-        //3. Check if user and userWhoUnFollowed are found
-        if (userToBeUnfollowed && userWhoUnFollowed) {
-          //4. Check if userWhoUnfollowed is already in the user's followers array
-          const isUserAlreadyFollowed = userToBeUnfollowed.followers.find(
-            follower => follower.toString() === userWhoUnFollowed._id.toString()
+        //1. Find the user to be blocked
+        const userToBeBlocked = await User.findById(req.params.id);
+        //2. Find the user who blocks
+        const userWhoBlock = await User.findById(req.userAuth);
+        //3. Check if user and userToBeBlocked are found
+        if (userToBeBlocked && userWhoBlock) {
+          //4. Check if userWhoBlock is already in the user's blocked array
+          const isUserAlreadyBlocked = userWhoBlock.blocking.find(
+            blocking => blocking.toString() === userToBeBlocked._id.toString()
           );
-          if (!isUserAlreadyFollowed) {
-            return next(appErr("You have not followed this user"));
+          if (isUserAlreadyBlocked) {
+            return next(appErr("You have already blocked this user"));
           } else {
-            //5. Remove userWhoUnFollowed from the user's followers array
-            userToBeUnfollowed.followers = userToBeUnfollowed.followers.filter(
-              follower => follower.toString() !== userWhoUnFollowed._id.toString()
-            );
+            //5. push userToBeBlocked into the user's blocking array
+            userWhoBlock.blocking.push(userToBeBlocked._id);
             //save the user
-            await userToBeUnfollowed.save();
-            //7. Remove userToBeInfollowed from the userWhoUnfollowed's following array
-            userWhoUnFollowed.following = userWhoUnFollowed.following.filter(
-              following =>
-                following.toString() !== userToBeUnfollowed._id.toString()
-            );
-    
-            //8. save the user
-            await userWhoUnFollowed.save();
+            await userWhoBlock.save();
             res.json({
               status: "success",
-              data: "You have successfully unfollowed this user",
+              data: "You have successfully blocked this user",
             });
           }
         }
-      } catch (error) {
+    } catch (error) {
         next(appErr(error.message));
-      }
+    }
+};
+
+// unblock
+const unblockCtrl = async(req, res, next) =>{
+    try {
+         //1. Find the user to be unblocked
+         const userToBeUnblocked = await User.findById(req.params.id);
+         //2. Find the user who is unblocking
+         const userWhoUnblock = await User.findById(req.userAuth);
+         //3. Check if user and userToBeUnblocked are found
+         if (userToBeUnblocked && userWhoUnblock) {
+           //4. Check if userToBeUnblocked is already in the user's blocked array
+           const isUserAlreadyBlocked = userWhoUnblock.blocking.find(
+            blocking => blocking.toString() === userToBeUnblocked._id.toString()
+           );
+           if (!isUserAlreadyBlocked) {
+             return next(appErr("You have not blocked this user"));
+           } else {
+             //5. remove userToBeUnblocked from the main user
+             userWhoUnblock.blocking = userWhoUnblock.blocking.filter(
+                blocking => blocking.toString() !== userToBeUnblocked._id.toString());
+             //save the user
+             await userWhoUnblock.save();
+             res.json({
+               status: "success",
+               data: "You have successfully unblocked this user",
+             });
+           }
+         }
+    } catch (error) {
+        next(appErr(error.message));
+    }
 };
 
 // Profile
@@ -192,6 +215,48 @@ const userProfileCtrl = async(req, res, next) =>{
         next("profile not failed");
     }
 };
+
+// unfollow
+const unfollowCtrl = async(req, res, next) =>{
+    try {
+        //1. Find the user to unfolloW
+        const userToBeUnfollowed = await User.findById(req.params.id);
+        //2. Find the user who is unfollowing
+        const userWhoUnFollowed = await User.findById(req.userAuth);
+        //3. Check if user and userWhoUnFollowed are found
+        if (userToBeUnfollowed && userWhoUnFollowed) {
+            //4. Check if userWhoUnfollowed is already in the user's followers array
+            const isUserAlreadyFollowed = userToBeUnfollowed.followers.find(
+            follower => follower.toString() === userWhoUnFollowed._id.toString()
+            );
+            if (!isUserAlreadyFollowed) {
+            return next(appErr("You have not followed this user"));
+            } else {
+            //5. Remove userWhoUnFollowed from the user's followers array
+            userToBeUnfollowed.followers = userToBeUnfollowed.followers.filter(
+                follower => follower.toString() !== userWhoUnFollowed._id.toString()
+            );
+            //save the user
+            await userToBeUnfollowed.save();
+            //7. Remove userToBeInfollowed from the userWhoUnfollowed's following array
+            userWhoUnFollowed.following = userWhoUnFollowed.following.filter(
+                following =>
+                following.toString() !== userToBeUnfollowed._id.toString()
+            );
+
+            //8. save the user
+            await userWhoUnFollowed.save();
+            res.json({
+                status: "success",
+                data: "You have successfully unfollowed this user",
+            });
+            }
+        }
+ } catch (error) {
+   next(appErr(error.message));
+ }
+};
+
 
 // All
 const usersCtrl = async(req, res) =>{
@@ -280,5 +345,7 @@ module.exports = {
     profilePhotoUploadCtrl,
     whoViewProfileCtrl,
     followingCtrl,
-    unfollowCtrl
+    unfollowCtrl,
+    blockCtrl,
+    unblockCtrl
 };
