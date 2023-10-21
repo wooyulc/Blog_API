@@ -56,11 +56,11 @@ const userSchema = new mongoose.Schema(
             type: mongoose.Types.ObjectId,
             ref: "User",
         }],
-        plan: [{
+        plan: {
             type: String,
             enum: ['Free', 'Premium', 'Pro'],
             default: 'Free'
-        }],
+        },
         userReward: [{
             type: String,
             enum: ['Bronze', 'Silver', 'Gold', 'Platinum'],
@@ -68,9 +68,44 @@ const userSchema = new mongoose.Schema(
         }]
     },
     {
-        timestamps: true
+        timestamps: true,
+        toJSON:{virtuals: true}
     }
 );
+
+//Get fullname
+userSchema.virtual('fullname').get(function(){
+    return `${this.firstname} ${this.lastname}`;
+})
+//get user initials
+userSchema.virtual('initials').get(function(){
+    return `${this.firstname[0]}${this.lastname[0]}` 
+})
+
+//get user postCounts
+userSchema.virtual('postCounts').get(function(){
+    return this.posts.length; 
+})
+
+//get followingCounts
+userSchema.virtual('followingCounts').get(function(){
+    return this.following.length; 
+})
+
+//get followersCounts
+userSchema.virtual('followersCounts').get(function(){
+    return this.followers.length; 
+})
+
+//get viewersCount
+userSchema.virtual('viewersCount').get(function(){
+    return this.viewers.length; 
+})
+
+//get blockCount
+userSchema.virtual('blockCount').get(function(){
+    return this.blocking.length; 
+})
 
 // Compile the user model
 const User = mongoose.model('User', userSchema);

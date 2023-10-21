@@ -77,7 +77,7 @@ const userLoginCtrl = async(req, res, next) =>{
 };
 
 // who view the profile
-const whoViewProfileCtrl = async(req, res) =>{
+const whoViewProfileCtrl = async(req, res, next) =>{
     try{
         // 1. find the original user 
         const user = await User.findById(req.params.id);
@@ -257,16 +257,60 @@ const unfollowCtrl = async(req, res, next) =>{
  }
 };
 
+// admin block
+const adminBlockUserCtrl = async(req, res, next) =>{
+    try{
+         //1. find the user to be blocked
+        const userToBeBlocked = await User.findById(req.params.id);
+        //2. Check if user found
+        if (!userToBeBlocked) {
+        return next(appErr("User not Found"));
+        }
+        //Change the isBlocked to true
+        userToBeBlocked.isBlocked = true;
+        //4.save
+        await userToBeBlocked.save();
+        res.json({
+            status: "success",
+            data: "You have successfully blocked this user as Admin",
+        });
+    } catch (error) {
+        res.json("all failed");
+    }
+};
+
+// admin unblock
+const adminUnblockUserCtrl = async(req, res, next) =>{
+    try{
+         //1. find the user to be unblocked
+        const userToBeUnblocked = await User.findById(req.params.id);
+        //2. Check if user found
+        if (!userToBeUnblocked) {
+        return next(appErr("User not Found"));
+        }
+        //Change the isBlocked to true
+        userToBeUnblocked.isBlocked = false;
+        //4.save
+        await userToBeUnblocked.save();
+        res.json({
+            status: "success",
+            data: "You have successfully unblocked this user as Admin",
+        });
+    } catch (error) {
+        res.json("all failed");
+    }
+};
 
 // All
 const usersCtrl = async(req, res) =>{
     try{
+        const users = await User.find();
         res.json({
             status: "success",
-            data: "users route",
+            data: users,
         });
     } catch (error) {
-        res.json("all failed");
+        res.json(error.message)
     }
 };
 
@@ -347,5 +391,7 @@ module.exports = {
     followingCtrl,
     unfollowCtrl,
     blockCtrl,
-    unblockCtrl
+    unblockCtrl,
+    adminBlockUserCtrl,
+    adminUnblockUserCtrl
 };

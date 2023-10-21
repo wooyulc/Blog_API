@@ -12,10 +12,13 @@ const {
     followingCtrl,
     unfollowCtrl,
     blockCtrl,
-    unblockCtrl
+    unblockCtrl,
+    adminBlockUserCtrl,
+    adminUnblockUserCtrl
 } = require('../../controllers/users/userCtrl');
 const isLogin = require('../../middlewares/isLogin');
 const multer = require('multer');
+const isAdmin = require('../../middlewares/isAdmin');
 const userRouter = express.Router();
 
 // instance of multer
@@ -48,12 +51,18 @@ userRouter.get('/block/:id', isLogin, blockCtrl);
 // GET/api/v1/users/unblock/:id
 userRouter.get('/unblock/:id', isLogin, unblockCtrl); 
 
+// PUT/api/v1/users/adminBlockUserCtrl/:id
+userRouter.put('/admin-block/:id', isLogin, isAdmin, adminBlockUserCtrl); 
+
+// PUT/api/v1/users/adminUnblockUserCtrl/:id
+userRouter.put('/admin-unblock/:id', isLogin, isAdmin, adminUnblockUserCtrl); 
+
 // DELETE/api/v1/users/:id
 userRouter.delete('/:id', userDeleteCtrl);
 
 // PUT/api/v1/users/:id
 userRouter.put('/:id', userUpdateCtrl);
-
+ 
 // POST/api/v1/users/profile-photo-upload
 userRouter.post('/profile-photo-upload', 
 isLogin, 

@@ -1,5 +1,7 @@
-// postCtrl.js
+const Post = require("../../model/Post/Post");
+const User = require("../../model/User/User");
 
+// postCtrl.js
 // Create
 const postCreateCtrl = async(req, res) =>{
     try{

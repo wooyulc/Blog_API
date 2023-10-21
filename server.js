@@ -4,6 +4,8 @@ const postRouter = require("./routes/posts/postRoutes");
 const commentRouter = require("./routes/comments/commentRoutes");
 const categoryRouter = require("./routes/categories/categoryRoutes");
 const globalErrHandler = require("./middlewares/globalErrHandler");
+const isAdmin = require("./middlewares/isAdmin");
+
 require("dotenv").config();
 require("./config/dbConnect");
 const app = express();
@@ -11,10 +13,10 @@ const app = express();
 // middelwares
 // pass incoming passload 
 app.use(express.json());
+//app.use(isAdmin);
 
 const userAuth = {
     isLogin: true,
-    isAdmin: false,
 };
 
 app.use((req, res, next) => {
@@ -29,7 +31,6 @@ app.use((req, res, next) => {
 
 // routes
 // users route
-
 app.use('/api/v1/users', userRouter);
 // posts route
 app.use('/api/v1/posts', postRouter);
