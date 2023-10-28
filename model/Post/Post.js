@@ -17,7 +17,7 @@ const postSchema = new mongoose.Schema(
         category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Category',
-            required: [true, "Post catetgory is required"],
+            //required: [true, "Post catetgory is required"],
         },
         numViews:[{
             type: mongoose.Schema.Types.ObjectId,
@@ -31,6 +31,7 @@ const postSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         }],
+        // who creates posts
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
@@ -38,7 +39,7 @@ const postSchema = new mongoose.Schema(
         },
         photo: {
             type: String,
-            required: [true, "Post Image is requried"]
+            //required: [true, "Post Image is requried"]
         }
     },
     {

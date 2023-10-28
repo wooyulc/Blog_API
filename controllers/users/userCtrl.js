@@ -4,6 +4,9 @@ const generateToken = require("../../utils/generateToken");
 const getTokenFromHeader = require("../../utils/getTokenFromHeader");
 const {appErr, AppErr} = require("../../utils/appErr");
 const multer = require('multer');
+const Post = require("../../model/Post/Post");
+const Category = require("../../model/Category/Category");
+const Comment = require("../../model/Comment/Comment");
 
 // Register
 const userRegisterCtrl = async(req, res, next) =>{
@@ -36,7 +39,7 @@ const userRegisterCtrl = async(req, res, next) =>{
             data: user,
         });
     } catch (error) {
-        next("Login failed");
+        next(appErr(error.message));
     }
 };
 
@@ -102,7 +105,7 @@ const whoViewProfileCtrl = async(req, res, next) =>{
             }
         }
     } catch (error) {
-        res.json(error.message);
+        next(appErr(error.message));
     }
 };
 
@@ -212,7 +215,7 @@ const userProfileCtrl = async(req, res, next) =>{
             data: user
         });
     } catch (error) {
-        next("profile not failed");
+        next(appErr(error.message));
     }
 };
 
@@ -302,7 +305,7 @@ const adminUnblockUserCtrl = async(req, res, next) =>{
 };
 
 // All
-const usersCtrl = async(req, res) =>{
+const usersCtrl = async(req, res, next) =>{
     try{
         const users = await User.find();
         res.json({
@@ -315,26 +318,84 @@ const usersCtrl = async(req, res) =>{
 };
 
 // Delete
-const userDeleteCtrl = async(req, res) =>{
+const userDeleteCtrl = async(req, res, next) =>{
     try{
+        // find the user to be deleted 
+        //const userTodelete = await User.findById(req.userAuth);
+        // find all posts to be deleted
+        await Post.deleteMany({user: req.userAuth});
+        // delete all commetns of the user
+        await Comment.deleteMany({user: req.userAuth});
+        // delete all category of the user
+        await Category.deleteMany({user: req.userAuth});
+        // delete the user
+        await User.findByIdAndDelete(req.userAuth);
+        
+        // send res
         res.json({
             status: "success",
-            data: "delete user route",
-        });
+            data: "Your account has been deleted successfully"
+        })
     } catch (error) {
-        res.json("delete failed");
+        next(appErr(error.message));
     }
 };
 
 // Update
-const userUpdateCtrl = async(req, res) =>{
+const userUpdateCtrl = async(req, res, next) =>{
+    const {email, firstname, lastname} = req.body;
     try{
+        // if email is not taken
+        if(email) {
+            const emailTaken = await User.findOne({email});
+            if(emailTaken){
+                return next(appErr("Email is taken", 400));
+            }
+        }
+
+        // update the user
+        const user = await User.findByIdAndUpdate(req.userAuth, {
+            lastname,
+            firstname,
+            email,
+        },
+        {
+            new: true,
+            runValidators: true,
+        });
+        //send response
         res.json({
             status: "success",
-            data: "update user route",
+            data: user
         });
     } catch (error) {
-        res.json("update failed");
+        next(appErr(error.message));
+    }
+};
+
+// Update password
+const userUpdatePasswordCtrl = async(req, res, next) =>{
+    const {password} = req.body;
+    try{
+        // check if user is updateing the password
+        if(password) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            //update user
+            await User.findByIdAndUpdate(
+                req.userAuth,
+                { password: hashedPassword },
+                { new: true, runValidators: true }
+            );
+            res.json({
+                status: "success",
+                data: "Password has been successfully changed",
+            });
+        }else {
+            return next(appErr('Please enter password'))
+        }
+    } catch (error) {
+        next(appErr(error.message));
     }
 };
 
@@ -374,7 +435,7 @@ const profilePhotoUploadCtrl = async(req, res, next) =>{
             );
       }
   } catch (error) {
-    res.json("Photo upload failed");
+    next(appErr(error.message));
   }
 };
 
@@ -393,5 +454,6 @@ module.exports = {
     blockCtrl,
     unblockCtrl,
     adminBlockUserCtrl,
-    adminUnblockUserCtrl
+    adminUnblockUserCtrl,
+    userUpdatePasswordCtrl
 };

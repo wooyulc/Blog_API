@@ -8,9 +8,7 @@ User
 const isAdmin = async (req, res, next) => {
     // get token from header
     const token = getTokenFromHeader(req);
-    if(!token) {
-        console.log("token empty");
-    }
+
     //verfy the token
     const decodedUser = verifyToken(token);
     // save the user into req obj
@@ -19,11 +17,7 @@ const isAdmin = async (req, res, next) => {
     //find the user in DB
     const user = await User.findById(decodedUser.id);
     console.log("decodedUser",decodedUser.id);
-    if(!user) {
-        console.log("empty");
-    }else{
-        console.log(user);
-    }
+ 
     // check if admin
     if(user.isAdmin) {
         return next()

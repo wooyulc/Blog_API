@@ -1,10 +1,11 @@
 // postRoutes.js
 const express = require('express');
 const { postCreateCtrl, postSingleCtrl, postsCtrl, postDeleteCtrl, postUpdateCtrl } = require('../../controllers/posts/postCtrl');
+const isLogin = require('../../middlewares/isLogin');
 const postRouter = express.Router();
 
 // POST/api/v1/posts
-postRouter.post('/', postCreateCtrl);
+postRouter.post('/', isLogin, postCreateCtrl);
 
 // GET/api/v1/posts/:id
 postRouter.get('/:id', postSingleCtrl);

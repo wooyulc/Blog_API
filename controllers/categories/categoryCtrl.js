@@ -1,22 +1,31 @@
 //categoryCtrl.js
+const Category = require("../../model/Category/Category");
+const { appErr } = require("../../utils/appErr");
+
 // Create
-const categoryCreateCtrl = async(req, res) =>{
+const categoryCreateCtrl = async(req, res, next) =>{
+    const { title } = req.body;
     try{
+        const category = await Category.create({
+            title,
+            user: req.userAuth
+        });
         res.json({
             status: "success",
-            data: "category created",
+            data: category
         });
     } catch (error) {
-        res.json(error.message);
+       return next(appErr(error.message))
     }
 };
 
 // Single
 const categorySingleCtrl = async(req, res) =>{
     try{
+        const category = await Category.findById(req.params.id);
         res.json({
             status: "success",
-            data: "category route",
+            data: category
         });
     } catch (error) {
         res.json(error.message);
@@ -26,9 +35,10 @@ const categorySingleCtrl = async(req, res) =>{
 // All
 const categoriesCtrl = async(req, res) =>{
     try{
+        const categories = await Category.find();
         res.json({
             status: "success",
-            data: "categories route",
+            data: categories
         });
     } catch (error) {
         res.json(error.message);
@@ -37,10 +47,19 @@ const categoriesCtrl = async(req, res) =>{
 
 // Update
 const categoryUpdateCtrl = async(req, res)=>{
+    const { title } = req.body;
     try{
+        const category = await Category.findByIdAndUpdate(
+            req.params.id,
+            {title},
+            {
+                new: true,
+                runValidators: true
+            }
+        )
         res.json({
             status: "success",
-            data: "update category route",
+            data: category
         });
     } catch (error) {
         res.json(error.message);
@@ -49,10 +68,12 @@ const categoryUpdateCtrl = async(req, res)=>{
 
 // Delete
 const categoryDeleteCtrl = async(req, res) =>{
+    
     try{
+        await Category.findByIdAndDelete(req.params.id);
         res.json({
             status: "success",
-            data: "delete category route",
+            data: "You have deleted the category successfully",
         });
     } catch (error) {
         res.json(error.message);

@@ -4,10 +4,24 @@ const User = require("../../model/User/User");
 // postCtrl.js
 // Create
 const postCreateCtrl = async(req, res) =>{
+    const { title, description } = req.body
     try{
-        res.json({
-            status: "success",
-            data: "post created",
+        //find the user
+        const author = await User.findById(req.userAuth);
+        //create the post
+        const postCreated = await Post.create({
+            title,
+            description,
+            user: author._id,
+        });
+        // associate user to a post - push the post in to the user post array
+        author.posts.push(postCreated);
+        //save
+        await author.save();
+        
+        res.json( {
+            status: "You have successfully created the post",
+            data: postCreated,
         });
     } catch (error) {
         res.json(error.message);
@@ -15,14 +29,14 @@ const postCreateCtrl = async(req, res) =>{
 };
 
 // Single
-const postSingleCtrl = async(req, res) =>{
+const postSingleCtrl = async(req, res, next) =>{
     try{
         res.json({
             status: "success",
             data: "Post route",
         });
     } catch (error) {
-        res.json(error.message);
+        next(appErr(error.message));
     }
 };
 
@@ -40,8 +54,22 @@ const postsCtrl = async(req, res) =>{
 
 // Update
 const postUpdateCtrl = async(req, res)=>{
+    const { title, description } = req.body
     try{
-        res.json({
+        //find the user
+        const author = await User.findById(req.userAuth);
+        //create the post
+        const postCreated = await Post.create({
+            title,
+            description,
+            user: author._id,
+        });
+        // associate user to a post - push the post in to the user post array
+        author.posts.push(postCreated);
+        //save
+        await author.save();
+
+        res.json( {
             status: "success",
             data: "update post route",
         });
@@ -51,14 +79,14 @@ const postUpdateCtrl = async(req, res)=>{
 };
 
 // Delete
-const postDeleteCtrl = async(req, res) =>{
+const postDeleteCtrl = async(req, res, next) =>{
     try{
         res.json({
             status: "success",
             data: "delete post route",
         });
     } catch (error) {
-        res.json(error.message);
+        next(appErr(error.message));
     }
 };
 
