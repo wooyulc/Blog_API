@@ -62,7 +62,11 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ['Bronze', 'Silver', 'Gold', 'Platinum'],
             default: 'Bronze'
-        }
+        },
+        comments: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Comment'
+        }],
     },
     {
         timestamps: true,
