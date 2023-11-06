@@ -14,17 +14,17 @@ const app = express();
 // pass incoming passload 
 app.use(express.json());
 
-//app.get('/', async (req,res)=>{
-  //  try{
-    //    const posts = await Post.find();
-      //  res.json({
-        //    status: "success",
-          //  data: posts
-        //})
-    //} catch (error) {
-      //  res.json(error);
-    //}
-//});
+app.get('/', async (req,res)=>{
+    try{
+        const posts = await Post.find();
+        res.json({
+            status: "success",
+            data: posts
+        })
+    } catch (error) {
+        res.json(error);
+    }
+});
 
 //app.use(isAdmin);
 
