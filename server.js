@@ -63,6 +63,6 @@ app.use('*', (req, res)=>{
     })
 });
 // listen to server
-const PORT = process.env.PORT || 9000;
+const PORT = 9000;
 
 app.listen(PORT, console.log(`Server is up and running on ${PORT}`));
